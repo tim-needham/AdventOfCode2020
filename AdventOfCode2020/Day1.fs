@@ -27,17 +27,19 @@ let run (file : string, testMode : bool) =
     let w = new Stopwatch();
     w.Start();
 
+    let test = [1721; 979; 366; 299; 675; 1456];
+
     let input = Seq.toList(File.ReadLines(file))
                 |> List.map (fun x -> Int32.Parse(x.ToString()));
 
-    let (a, b) = input
+    let (a, b) = if testMode then test else input
                 |> pairs
                 |> Seq.find(fun (x, y) -> x + y = 2020)
 
     (a * b)
     |> printfn "Day 1, part 1: %d";
 
-    let (c, d, e) = input
+    let (c, d, e) = if testMode then test else input
                     |> triples
                     |> Seq.find(fun (x, y, z) -> x + y + z = 2020)
     (c * d * e)
