@@ -44,14 +44,11 @@ let combinations (b : string) (bs : (string * (int * string) list) list) : strin
     |> List.filter (fun x -> x <> b)
     |> List.distinct;
 
-let rec countBags (m : Map<string, (int * string) list>) (b : string) : int =
+let rec countBags (b : string) (m : Map<string, (int * string) list>) : int =
     match Map.find b m with
     | [] -> 0;
     | xs -> xs
-            |> List.sumBy (fun (x, y) -> x * (1 + countBags m y));
-
-let contents (b : string) (bs : (string * (int * string) list) list) : int =
-    countBags (Map.ofList bs) b;
+            |> List.sumBy (fun (x, y) -> x * (1 + countBags y m));
 
 let run (file : string, testMode : bool) =
 
@@ -87,8 +84,9 @@ let run (file : string, testMode : bool) =
     |> printfn "Day 7, part 1: %d";
 
     if testMode then test2 else input
-    |> contents "shiny gold"
-    |> printfn "Day 7, part 2: %A";
+    |> Map.ofList
+    |> countBags "shiny gold"
+    |> printfn "Day 7, part 2: %d";
 
     w.Stop();
     printfn "Time taken: %d ms" w.ElapsedMilliseconds;
