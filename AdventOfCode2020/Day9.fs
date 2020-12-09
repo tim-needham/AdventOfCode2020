@@ -50,7 +50,7 @@ let rec crack (t : int64) (ns : int64 list) : int64 =
     | [] -> failwith "Unable to find contiguous sequence!";
     | _::xs ->  match something t [] ns with
                 | [] -> crack t xs;
-                | ys -> ( ys |> List.min) + (ys |> List.max);
+                | ys -> (ys |> List.min) + (ys |> List.max);
 
 let run (file : string, testMode : bool) =
 
