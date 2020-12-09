@@ -7,6 +7,7 @@ open System.IO;
 let parse (s : string) : (int * int * char * string) =
     match s.Split([| '-'; ' '; ':' |], StringSplitOptions.RemoveEmptyEntries) with
     | [| a; b; c; d |] -> (Int32.Parse(a), Int32.Parse(b), c.[0], d);
+    | _ -> failwithf "Unrecognised input %s" s;
 
 let rec verify (a : int) (n : int) (x : int) (c : char) (d : char list) : bool =
     match d with
