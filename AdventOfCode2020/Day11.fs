@@ -32,18 +32,6 @@ let prettyPrintGrid (ss : Space list list) : unit =
         printfn "";
     printfn "";
 
-let createPoints ((lx, ly) : int * int) ((ux, uy) : int * int) ((fx, fy) : int * int) : (int * int) list =
-    let lx' = Math.Max(lx, fx-1);
-    let ux' = Math.Min(ux, fx+1)
-    let ly' = Math.Max(ly, fy-1);
-    let uy' = Math.Min(uy, fy+1);
-
-    [ for j in ly'..uy' do
-        for i in lx'..ux' -> 
-            (i, j)
-    ]
-    |> List.filter (fun (x, y) -> x <> fx || y <> fy);
-
 let rec findSeat (r : bool) ((fx, fy) : int * int) (ss : Space list list) ((dx, dy) : int * int) : Space option =
     let fx' = fx + dx;
     let fy' = fy + dy;
