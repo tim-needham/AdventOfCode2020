@@ -28,4 +28,6 @@ let main argv =
                     | true, _ -> ignore true;
                     | false, _ -> cont <- false;
 
+        printfn "";
+
     0 // return an integer exit code
