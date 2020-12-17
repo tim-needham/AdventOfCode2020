@@ -7,28 +7,8 @@ open System.IO;
 let parse (s : string) : bool list =
     s |> Seq.toList |> List.map (fun x -> match x with '#' -> true | _ -> false);
 
-// Turn a 2d plane into a 3d or 4d space big enough for c cycles with the initial plane in the centre
-// hc : bool - Hypercube!
-// c : int - number of cycles' expansion to provision for
-// g : bool list list - initial state 2d plane
-let padForCycles (hc : bool) (c : int) (g : bool list list) : bool list list list list =
-    let h, w = g.Length, g.[0].Length;
-
-    [ for l in 0..(if hc then 2*c else 0) ->
-        [ for k in 0..(2*c) ->    
-            [ for j in 0..((2*c)+h-1) ->
-                [ for i in 0..((2*c)+w-1) ->
-                    if k = c && (not hc || l = c) then
-                        if j >= c && j < (c+h) && i >= c && i < (c+w) then
-                            g.[j-c].[i-c];
-                        else
-                            false
-                    else
-                        false
-                ]
-            ]
-        ]
-    ];
+let hyperSpace (g : bool list list) : bool list list list list =
+    [[ g ]];
 
 let generateNeighbours ((x, y, z, w) : int * int * int * int) ((mx, my, mz, mw) : int * int * int * int) : (int * int * int * int) list =
     [ for l in Math.Max(0, w-1)..Math.Min(mw, w+1) do
@@ -39,27 +19,32 @@ let generateNeighbours ((x, y, z, w) : int * int * int * int) ((mx, my, mz, mw) 
     ]
     |> List.filter (fun (i, j, k, l) -> not (i=x && j=y && k=z && l=w));
     
-let cycle (g : bool list list list list) : bool list list list list =
-    [ for l in 0..g.Length-1 ->
-        [ for k in 0..g.[l].Length-1 ->    
-            [ for j in 0..g.[l].[k].Length-1 ->
-                [ for i in 0..g.[l].[k].[j].Length-1 ->
-                    let ns = generateNeighbours (i, j, k, l) (g.[l].[k].[j].Length-1, g.[l].[k].Length-1, g.[l].Length-1, g.Length-1)
+// Ok, let's grow the space each time instead of operating in a fixed-size space.
+// h : bool - Hypercube!
+let cycle (h : bool) (g : bool list list list list) : bool list list list list =
+    let mx, my, mz, md = g.[0].[0].[0].Length-1, g.[0].[0].Length-1, g.[0].Length-1, g.Length-1;
+
+    [ for l in (if h then -1 else 0)..(md + if h then 1 else 0) ->
+        [ for k in -1..mz+1 ->    
+            [ for j in -1..my+1->
+                [ for i in -1..mx+1 ->
+                    let ns = generateNeighbours (i, j, k, l) (mx, my, mz, md)
                             |> List.map (fun (x, y, z, w) -> g.[w].[z].[y].[x])
                             |> List.filter (fun x -> x)
                             |> List.length;
-                    if g.[l].[k].[j].[i] && (ns = 2 || ns = 3) then true
-                    elif (not g.[l].[k].[j].[i]) && ns = 3 then true
+                    let c = if l >= 0 && l <= md && k >= 0 && k <= mz && j >= 0 && j <= my && i >= 0 && i <= mx then g.[l].[k].[j].[i] else false;
+                    if c && (ns = 2 || ns = 3) then true;
+                    elif (not c) && ns = 3 then true;
                     else false;
                 ]
             ]
         ]
     ];
-    
-let rec cycles (n : int) (g : bool list list list list) : bool list list list list =
+
+let rec cycles (h : bool) (n : int) (g : bool list list list list) : bool list list list list =
     match n with
     | 0 -> g;
-    | x -> g |> cycle |> cycles (x-1);
+    | x -> g |> cycle h |> cycles h (x-1);
 
 let energy (g : bool list list list list) : int =
     g |> List.map List.concat |> List.map List.concat |> List.concat |> List.filter (fun x -> x) |> List.length;
@@ -88,14 +73,14 @@ let run (file : string, testMode : bool) =
                 |> List.map parse;
 
     if testMode then test else input
-    |> padForCycles false 6
-    |> cycles 6
+    |> hyperSpace
+    |> cycles false 6
     |> energy
     |> printfn "Day 17, part 1: %d";
 
     if testMode then test else input
-    |> padForCycles true 6
-    |> cycles 6
+    |> hyperSpace
+    |> cycles true 6
     |> energy
     |> printfn "Day 17, part 2: %d";
 
