@@ -7,6 +7,10 @@ open System.IO;
 let parse (s : string) : bool list =
     s |> Seq.toList |> List.map (fun x -> match x with '#' -> true | _ -> false);
 
+// Turn a 2d plane into a 3d or 4d space big enough for c cycles with the initial plane in the centre
+// hc : bool - Hypercube!
+// c : int - number of cycles' expansion to provision for
+// g : bool list list - initial state 2d plane
 let padForCycles (hc : bool) (c : int) (g : bool list list) : bool list list list list =
     let h, w = g.Length, g.[0].Length;
 
@@ -35,7 +39,6 @@ let generateNeighbours ((x, y, z, w) : int * int * int * int) ((mx, my, mz, mw) 
     ]
     |> List.filter (fun (i, j, k, l) -> not (i=x && j=y && k=z && l=w));
     
-
 let cycle (g : bool list list list list) : bool list list list list =
     [ for l in 0..g.Length-1 ->
         [ for k in 0..g.[l].Length-1 ->    
