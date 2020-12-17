@@ -4,11 +4,11 @@ open System;
 open System.Diagnostics;
 open System.IO;
 
-let parse (s : string) : bool list =
+let parseString (s : string) : bool list =
     s |> Seq.toList |> List.map (fun x -> match x with '#' -> true | _ -> false);
 
-let hyperSpace (g : bool list list) : bool list list list list =
-    [[ g ]];
+let parse (ss : string list) : bool list list list list =
+    [[ ss |> List.map parseString ]];
 
 let generateNeighbours ((x, y, z, w) : int * int * int * int) ((mx, my, mz, mw) : int * int * int * int) : (int * int * int * int) list =
     [ for l in Math.Max(0, w-1)..Math.Min(mw, w+1) do
@@ -46,8 +46,8 @@ let rec cycles (h : bool) (n : int) (g : bool list list list list) : bool list l
     | 0 -> g;
     | x -> g |> cycle h |> cycles h (x-1);
 
-let energy (g : bool list list list list) : int =
-    g |> List.map List.concat |> List.map List.concat |> List.concat |> List.filter (fun x -> x) |> List.length;
+let energy (h : bool) (n : int) (g : bool list list list list) : int =
+    g |> cycles h n |> List.map List.concat |> List.map List.concat |> List.concat |> List.filter (fun x -> x) |> List.length;
 
 let prettyPrint (g : bool list list list list) : unit =
     for l in 0..g.Length-1 do
@@ -67,21 +67,17 @@ let run (file : string, testMode : bool) =
     let test = [ ".#.";
                 "..#";
                 "###" ]
-                |> List.map parse
-                |> hyperSpace;
+                |> parse;
 
     let input = Seq.toList(File.ReadLines(file))
-                |> List.map parse
-                |> hyperSpace;
+                |> parse;
 
     if testMode then test else input
-    |> cycles false 6
-    |> energy
+    |> energy false 6
     |> printfn "Day 17, part 1: %d";
 
     if testMode then test else input
-    |> cycles true 6
-    |> energy
+    |> energy true 6
     |> printfn "Day 17, part 2: %d";
 
     w.Stop();
