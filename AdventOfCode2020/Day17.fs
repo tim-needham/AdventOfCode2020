@@ -67,19 +67,19 @@ let run (file : string, testMode : bool) =
     let test = [ ".#.";
                 "..#";
                 "###" ]
-                |> List.map parse;
+                |> List.map parse
+                |> hyperSpace;
 
     let input = Seq.toList(File.ReadLines(file))
-                |> List.map parse;
+                |> List.map parse
+                |> hyperSpace;
 
     if testMode then test else input
-    |> hyperSpace
     |> cycles false 6
     |> energy
     |> printfn "Day 17, part 1: %d";
 
     if testMode then test else input
-    |> hyperSpace
     |> cycles true 6
     |> energy
     |> printfn "Day 17, part 2: %d";
