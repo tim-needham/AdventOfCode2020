@@ -85,16 +85,17 @@ let run (file : string, testMode : bool) =
     let input = Seq.toList(File.ReadLines(file))
                 |> List.map Seq.toList;
 
-    if testMode then test else input
-    |> walkAll []
+    let initial =   if testMode then test else input
+                    |> walkAll [];
+
+    initial
     |> List.length
     |> printfn "Day 24, part 1: %d";
 
-    if testMode then test else input
-    |> walkAll []
+    initial
     |> life 100
     |> List.length
-    |> printfn "Day 24, part 2: %A";
+    |> printfn "Day 24, part 2: %d";
 
     w.Stop();
     printfn "Time taken: %d ms" w.ElapsedMilliseconds;
